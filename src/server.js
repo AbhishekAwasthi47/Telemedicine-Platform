@@ -17,15 +17,13 @@ app.use(cors());
 app.use(express.json({ extended: false }));
 
 // Define Routes
+app.use('/api/patients', require('./routes/patientRoutes'));
+app.use('/api/doctors', require('./routes/doctorRoutes'));
+app.use('/api/medical-records', require('./routes/medicalRecordRoutes'));
+app.use('/api/appointments', require('./routes/appointmentRoutes'));
+
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Platform API is running' });
-});
-
-// Example protected route with audit logging
-app.get('/api/patient/:id/records', authenticate, auditLogPHI('READ_MEDICAL_RECORDS'), (req, res) => {
-  // In a real application, the controller would fetch the medical records here.
-  // The audit middleware will automatically log this access.
-  res.json({ message: 'Medical records accessed successfully' });
 });
 
 const PORT = process.env.PORT || 5000;
