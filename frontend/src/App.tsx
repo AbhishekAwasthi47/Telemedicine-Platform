@@ -1,14 +1,21 @@
 import React, { useState } from 'react';
+import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import { Container, Typography, TextField, Button, Box, Paper, Grid } from '@mui/material';
 import axios from 'axios';
+import ConsultationRoom from './components/ConsultationRoom';
 
-function App() {
+function Home() {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  const defaultDateTime = now.toISOString().slice(0, 16);
+
   const [doctorId, setDoctorId] = useState('');
   const [patientId, setPatientId] = useState('');
-  const [startTime, setStartTime] = useState('');
-  const [endTime, setEndTime] = useState('');
+  const [startTime, setStartTime] = useState(defaultDateTime);
+  const [endTime, setEndTime] = useState(defaultDateTime);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   const handleBooking = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,11 +29,14 @@ function App() {
         endTime: new Date(endTime).toISOString(),
       }, {
         headers: {
-          // Dummy token for MVP structural demonstration
           Authorization: 'Bearer dummy-token'
         }
       });
       setMessage(response.data.message + ' (Room Token: ' + response.data.roomToken + ')');
+      // Intern: Automatically go to the room for testing so I don't have to copy-paste it
+      setTimeout(() => {
+         navigate(`/room/${response.data.roomToken}`);
+      }, 2000);
     } catch (err: any) {
       if (err.response && err.response.data) {
         setError(err.response.data.error + ': ' + (err.response.data.message || ''));
@@ -114,4 +124,16 @@ function App() {
   );
 }
 
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/room/:roomToken" element={<ConsultationRoom />} />
+      </Routes>
+    </Router>
+  );
+}
+
 export default App;
+
